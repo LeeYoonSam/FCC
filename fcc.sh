@@ -2,21 +2,24 @@
 
 function fcc {
     local FCC_DIRECTORY="$HOME/.config/fcc-dir"
-    local INDEX="$FCC_DIRECTORY/index"
+    local FILE_NAME="index"
+    local INDEX="$FCC_DIRECTORY/$FILE_NAME"
     local PREVIEW="ls -alh"
+    local EXPORT_GZ="fcc-export.tgz"
 
     function __fcc_help() {
         printf "
 [ fcc ] - favorite command collection
 
-usage: fcc [add | select | remove | list | clean | help]
-short: fcc [a   | s      | rm     | l    | c     | h   ]
+usage: fcc [add | select | remove | list | export | clean | help]
+short: fcc [a   | s      | rm     | l    | e      | c     | h   ]
 
 Examples
 fcc add     => Add command to fcc index file.
 fcc select  => Add command to fcc from history index file.
 fcc remove  => Remove selected command in index file.
 fcc list    => Print index file.
+fcc export  => Export the index file.
 fcc clean   => Remove invalid directories in index file.
 fcc help    => Show help.
 \n"
@@ -41,6 +44,8 @@ fcc help    => Show help.
                 __fcc_remove_command;;
             "select" |"s")
                 __fcc_select_command;;
+            "export" |"e")
+                __fcc_export_command;;
             *)
                 __fcc_get_list
                 local TARGET_COMMAND=$(__fcc_get_target_command)
@@ -94,6 +99,12 @@ fcc help    => Show help.
                 checkDuplicationCommand $successMessage
             done
         )
+    }
+
+    function __fcc_export_command() {
+        cat $INDEX >> $FILE_NAME
+        tar -czvf ${EXPORT_GZ} $FILE_NAME
+        rm -f $FILE_NAME
     }
 
     function printParentsRecursive() {
